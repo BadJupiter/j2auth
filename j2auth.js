@@ -32,10 +32,17 @@ function getCookie() {
 }
 
 userToken = getCookie();
+var isAuthenticated = false; // track authentication status
 
-// global variable to track authentication status
+function setCookie(cvalue, exdays) {
+	
+	console.log("set cookie");
+	var d = new Date();
+	d.setTime(d.getTime() + (exdays*24*60*60*1000));
+	var expires = "expires="+ d.toUTCString();
 
-var isAuthenticated = false;
+	document.cookie = DEVICE_COOKIE + "=" + cvalue;
+}
 
 async function checkLocalConfig() {
 	console.log("Check for local config info (server URL etc. - local.json");
@@ -116,14 +123,6 @@ async function j2AuthInit(bizid,apptok) {
 	}
 }
 
-//	requestAuthenticationCode(phonenumber).then(serverCode => {
-//		if (serverCode) {
-//		// Handle the serverCode
-//		} else {
-//			// Handle the case where no auth code was returned
-//		}
-//	});
-//
 function requestAuthenticationCode(phoneNumber) {
 	return fetch(serverURL + apiAuthMobile, {
 		method: 'POST',
@@ -227,15 +226,5 @@ function registerBusinessUser() {
 		
 		console.log(`CANNOT registerBusinessUser ${userMobile}/${bizID}`);
 	}
-}
-
-function setCookie(cvalue, exdays) {
-	
-	console.log("set cookie");
-	var d = new Date();
-	d.setTime(d.getTime() + (exdays*24*60*60*1000));
-	var expires = "expires="+ d.toUTCString();
-
-	document.cookie = DEVICE_COOKIE + "=" + cvalue;
 }
 
