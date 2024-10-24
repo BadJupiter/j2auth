@@ -66,15 +66,23 @@ async function checkLocalConfig() {
 	}
 }
 
-async function fetchUserProfile(apptoken, usertoken) {
+// async function fetchUserProfile(apptoken, usertoken) {
+async function fetchUserProfile() {
+
+//	we already have usertoken initialized (maybe null)
 	
-	if (usertoken) {
-		console.log(`fetching profile: ${bizID}/${apptoken} (user token ${usertoken})`);
+	if (userToken) {
+		console.log(`fetching profile: ${bizID}/${appToken} (user token ${userToken})`);
 	} else {
-		console.log(`fetching profile: ${bizID}/${apptoken} (no user token found)`);
+		console.log(`fetching profile: ${bizID}/${appToken} (no user token found)`);
 	}
 	
-	biz_id = bizID; // for now... API is picky
+//	this is a shameful hack... API is picky about parameter names
+//	so we have to rename a couple of these guys here...
+	usertoken = userToken;
+	apptoken = appToken;
+	biz_id = bizID;
+	
 	return fetch(serverURL+apiUserProfile, {
 		method: 'POST',
 		headers: {
@@ -103,8 +111,8 @@ async function j2AuthInit(bizid,apptok) {
 
 	console.log(`Jupiter 2 authentication init... (app token ${apptok})`)
 
-	bizID = bizid;			// global
-	appToken = apptok;	// global
+	bizID = bizid;		// global (initialize)
+	appToken = apptok;	// global (initialize)
 	
 	if (!bizid || !apptok) {
 
@@ -114,7 +122,7 @@ async function j2AuthInit(bizid,apptok) {
 	
 	await checkLocalConfig();
 
-	userProfile = await fetchUserProfile(appToken, userToken);
+	userProfile = await fetchUserProfile();
 			
 	console.log("user profile:",userProfile);
 	
