@@ -1,4 +1,7 @@
 // Jupiter 2 mobile authentication and other API support
+// 
+// THIS IS A SUBMODULE that will be shared by many apps for mobile authentication
+// ...and this is an experiment to see if I can edit / update the repo from a project
 //
 
 const DEVICE_COOKIE = "jupiterDeviceID";
