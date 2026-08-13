@@ -1,8 +1,30 @@
 // Jupiter 2 mobile authentication and other API support
-// 
-// THIS IS A SUBMODULE that will be shared by many apps for mobile authentication
-// ...and this is an experiment to see if I can edit / update the repo from a project
 //
+// CANONICAL SOURCE — github.com/BadJupiter/j2auth
+//
+// Every Jupiter app authenticates through this one file. Edit it HERE and
+// distribute; never edit a deployed copy in place. Six copies had quietly
+// forked before this was reconciled (2026-08-12), including a real behavioral
+// split in the verify handler.
+//
+// API surface (globals — this is a classic script, not a module):
+//   j2AuthInit(bizid, apptoken)   resolve the device cookie to a User
+//   authenticateUser()            run the SMS modal; resolves true/false
+//   isAuthenticated, userProfile  post-auth state
+//   getCookie()                   the device token
+//
+// Requires: a `bootstrap.Modal`-compatible global (real Bootstrap, or the
+// bs-shim.js used by the dashboards), VMasker, and the shared auth-modal
+// markup — the element IDs below are addressed directly.
+//
+// PER-APP POLICY: after a successful verify this calls registerBusinessUser(),
+// which creates a role-less (:User)-[:REGISTERED_FOR]->(:Business) edge. That
+// is right for consumer apps — it's how a guest becomes known to a business —
+// and wrong for admin dashboards, where merely attempting to sign in must not
+// grant membership. Those opt out by overriding the global before any flow
+// runs, rather than by forking this file:
+//
+//     window.registerBusinessUser = () => {};
 
 console.log("j2auth initializing... (top level)");
 
@@ -352,17 +374,19 @@ async function authenticateUser() {
 
 			verifyCodeBtn.disabled = true;
 
-			// Call your verifyAuthenticationCode() function
+			// verifyAuthenticationCode() already sets the cookie, refreshes
+			// userToken and fetches userProfile on success — see its body.
+			// This handler used to repeat all three, costing a second
+			// /userprofile/ round-trip on every sign-in. (Fix originated in
+			// the IPS copy, 2026-01-04; folded in here so every app gets it.)
 			const isAuthenticated = await verifyAuthenticationCode(userCode);
 
 			if (isAuthenticated) {
 
-				  setCookie(newDeviceToken, 30); // 30 days (?)
-				userToken = getCookie();
-		  
-				  userProfile = await fetchUserProfile(appToken, userToken);
-				  
-				registerBusinessUser(); // don't need to wait on this 
+				userToken = getCookie();   // re-read so callers see it immediately
+
+				// Per-app policy — see the header. Deliberately not awaited.
+				registerBusinessUser();
 
 				authModal.hide();
 				resolve(true); // Authentication successful
