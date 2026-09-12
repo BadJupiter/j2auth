@@ -14,6 +14,10 @@
 set -u
 
 BASE="${JUPITER_BASE:-$HOME/dev-jupiter2}"
+# civicgraph lives outside the Jupiter workspace, so it needs its own base.
+DWORKS="${DWORKS_BASE:-$HOME/dev-dworks}"
+# badgervision is its own Pages repo, outside both workspaces.
+BVISION="${BVISION_BASE:-$HOME/badgervision}"
 CANON="$(cd "$(dirname "$0")" && pwd)/j2auth.js"
 
 # One copy per repo. Inside v2-client every sub-app loads ../j2auth.js, so the
@@ -21,6 +25,8 @@ CANON="$(cd "$(dirname "$0")" && pwd)/j2auth.js"
 COPIES=(
   "$BASE/v2-client/j2auth.js"
   "$BASE/v2-db-feedback/docs/js/j2auth.js"
+  "$DWORKS/civicgraph/docs/js/j2auth.js"
+  "$BVISION/j2auth.js"
 )
 
 FIX=0
@@ -57,7 +63,8 @@ for f in "${COPIES[@]}"; do
   fi
 done
 
-# Catch anyone reintroducing a per-app copy inside v2-client.
+# Catch anyone reintroducing a per-app copy inside v2-client. (Only v2-client
+# — the other consumers have a single copy each by construction.)
 strays="$(find "$BASE/v2-client" -name j2auth.js -not -path "$BASE/v2-client/j2auth.js" \
           -not -path '*/j2env/*' 2>/dev/null)"
 if [ -n "$strays" ]; then
