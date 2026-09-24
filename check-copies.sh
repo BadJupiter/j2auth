@@ -24,6 +24,11 @@ CANON="$(cd "$(dirname "$0")" && pwd)/j2auth.js"
 # repo root is the only copy there — don't reintroduce per-app copies.
 COPIES=(
   "$BASE/v2-client/j2auth.js"
+  # The vanity clones of v2-client, for /checkin/ (qr_confirm host scanning).
+  # sync_client_repo.py deliberately leaves j2auth.js to this script.
+  "$BASE/v2-client-3rivs/j2auth.js"
+  "$BASE/v2-client-colusa/j2auth.js"
+  "$BASE/v2-client-saddlewest/j2auth.js"
   "$BASE/v2-db-feedback/docs/js/j2auth.js"
   "$DWORKS/civicgraph/docs/js/j2auth.js"
   "$BVISION/j2auth.js"
